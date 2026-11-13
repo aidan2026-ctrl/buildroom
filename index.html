@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Buildroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html{background:#0b0b0c}
+  body{margin:0;min-height:100vh;background:transparent;color:#fff;font-family:Inter,system-ui,sans-serif}
+  a{color:inherit}
+  button,input,textarea,select{font:inherit}
+
+  /* background video */
+  .bg{position:fixed;inset:0;overflow:hidden;z-index:0;background:#0b0b0c}
+  .bg iframe{position:absolute;top:50%;left:50%;width:100vw;height:56.25vw;min-height:100vh;min-width:177.78vh;border:0;pointer-events:none}
+  .app{position:relative;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,.55)}
+
+  /* top bar */
+  .nav{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:12px 18px;background:rgba(10,10,12,.55);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.1);flex-wrap:wrap}
+  .brand{font-weight:700;font-size:18px;letter-spacing:-.02em;margin-right:auto;text-decoration:none}
+  .nav a.link{text-decoration:none;font-size:14px;font-weight:500;padding:8px 12px;border-radius:999px;color:rgba(255,255,255,.85)}
+  .nav a.link:hover,.nav a.link.on{background:rgba(255,255,255,.14);color:#fff}
+  .badge{display:inline-block;min-width:18px;padding:1px 6px;margin-left:4px;border-radius:999px;background:#ff4d6d;font-size:11px;text-align:center;text-shadow:none}
+  .demo{position:relative;z-index:6;font-size:12px;text-align:center;padding:6px;background:rgba(124,108,255,.35);backdrop-filter:blur(10px)}
+
+  .wrap{max-width:720px;margin:0 auto;padding:40px 18px 80px}
+  .glass{background:rgba(15,15,18,.55);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:20px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-shadow:none}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  h1{margin:0;font-size:clamp(40px,7vw,64px);line-height:1.02;letter-spacing:-.03em;font-weight:700}
+  h2{margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.75)}
+  h3{margin:0;font-size:18px;font-weight:600}
+  p{margin:0;line-height:1.55}
+  .muted{color:rgba(255,255,255,.65)}
+  .small{font-size:13px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px;cursor:pointer;background:#fff;color:#111;text-decoration:none;text-shadow:none}
+  .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .btn.danger{background:rgba(255,77,109,.18);color:#ff9aac;border:1px solid rgba(255,77,109,.35)}
+  .btn.small{padding:7px 12px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  label{display:block;font-size:13px;color:rgba(255,255,255,.7);margin:10px 0 6px}
+  input[type=text],input[type=email],input[type=password],input[type=date],input[type=url],input[type=number],textarea,select{width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:#fff;outline:none}
+  input:focus,textarea:focus,select:focus{border-color:rgba(255,255,255,.55)}
+  textarea{resize:vertical;min-height:90px}
+  .err{color:#ff9aac;font-size:14px;min-height:18px}
+  .ok{color:#7ff0b8;font-size:14px}
+
+  .chip{display:inline-block;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:500;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;cursor:pointer;text-decoration:none}
+  .chip.on{background:#fff;color:#111}
+  .kind{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:6px}
+  .kind.building{background:rgba(255,184,71,.2);color:#ffd08a}
+  .kind.joining{background:rgba(61,220,151,.2);color:#8ff0c3}
+
+  .post .who{display:flex;align-items:center;gap:10px}
+  .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#111;flex:none}
+  .post .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+  /* profile page */
+  .links{display:flex;flex-wrap:wrap;gap:20px;font-weight:500}
+  .links a{text-decoration:none;border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:2px}
+  .cards{display:flex;flex-wrap:wrap;gap:14px}
+  .card{flex:1 1 260px}
+  ol.music{list-style:none;margin:0;padding:0}
+  ol.music li{display:flex;gap:18px;align-items:baseline;padding:13px 0;border-top:1px solid rgba(255,255,255,.2)}
+  ol.music li:last-child{border-bottom:1px solid rgba(255,255,255,.2)}
+  ol.music .n{width:20px;font-size:13px;color:rgba(255,255,255,.6)}
+  ol.music .t{flex:1;font-weight:500}
+
+  /* messages */
+  .convo{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;text-decoration:none}
+  .convo:hover{background:rgba(255,255,255,.08)}
+  .convo.unread .name{font-weight:700}
+  .convo.unread .dot{width:8px;height:8px;border-radius:50%;background:#ff4d6d}
+  .thread{display:flex;flex-direction:column;gap:8px;max-height:58vh;overflow-y:auto;padding:4px}
+  .bubble{max-width:78%;padding:9px 12px;border-radius:14px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+  .bubble.me{align-self:flex-end;background:#fff;color:#111;border-bottom-right-radius:4px}
+  .bubble.them{align-self:flex-start;background:rgba(255,255,255,.14);border-bottom-left-radius:4px}
+  .bubble .time{display:block;font-size:10px;opacity:.55;margin-top:3px}
+
+  /* modal + toast */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none;align-items:center;justify-content:center;padding:18px}
+  .modal.open{display:flex}
+  .modal .glass{width:100%;max-width:420px;background:rgba(20,20,24,.95)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:30;background:rgba(20,20,24,.95);border:1px solid rgba(255,255,255,.15);padding:11px 16px;border-radius:10px;font-size:14px;display:none}
+  .toast.show{display:block}
+
+  .modal .mwrap{width:100%;max-width:520px}
+
+  /* ===== floating feed ===== */
+  body.feedmode .bg{background:
+      radial-gradient(60vw 60vh at 15% 20%, rgba(124,108,255,.28), transparent 60%),
+      radial-gradient(55vw 55vh at 85% 75%, rgba(255,93,115,.20), transparent 60%),
+      radial-gradient(40vw 40vh at 70% 10%, rgba(61,220,151,.12), transparent 60%),
+      #08080b;
+    animation:bgshift 30s ease-in-out infinite alternate}
+  @keyframes bgshift{to{background-position:6vw 4vh,-5vw -6vh,3vw 5vh,0 0}}
+  #space{position:fixed;left:0;right:0;top:0;bottom:0;overflow:hidden;z-index:1;display:none;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,transparent 150px,#000 270px);mask-image:linear-gradient(to bottom,transparent 0,transparent 150px,#000 270px)}
+  body.feedmode.listview #space{-webkit-mask-image:none;mask-image:none;top:150px}
+  body.feedmode #space{display:block}
+  .float{position:absolute;bottom:0;width:260px;animation:rise var(--dur) linear var(--delay) infinite;will-change:transform}
+  .float .sway{animation:sway var(--sway) ease-in-out infinite alternate}
+  .float:hover,.float:focus-within,.float:hover .sway,.float:focus-within .sway{animation-play-state:paused}
+  @keyframes rise{from{transform:translateY(110%) scale(var(--s))}to{transform:translateY(calc(-100vh - 110%)) scale(var(--s))}}
+  @keyframes sway{from{translate:-18px 0}to{translate:18px 0}}
+  .fcard{display:block;width:100%;text-align:left;cursor:pointer;color:#fff;font:inherit;
+    background:rgba(18,18,22,.62);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:16px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:var(--o);transition:opacity .2s,border-color .2s,box-shadow .2s;text-shadow:none}
+  .fcard:hover,.fcard:focus-visible{opacity:1;border-color:rgba(255,255,255,.5);box-shadow:0 10px 40px rgba(0,0,0,.45);outline:none}
+  .fcard h3{font-size:16px;line-height:1.3;margin:10px 0 8px}
+  .fcard .meta{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.7)}
+  .fcard .avatar{width:22px;height:22px;font-size:11px}
+  .fcard .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .fcard .tags span{font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.12)}
+  .float.hide{display:none}
+
+  .feedbar{position:fixed;left:50%;transform:translateX(-50%);top:84px;z-index:4;width:min(680px,calc(100% - 28px));text-shadow:none}
+  .searchrow{display:flex;gap:8px;align-items:center;background:rgba(15,15,18,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 6px 6px 16px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .searchrow input{flex:1;min-width:0;background:transparent;border:0;padding:8px 0;color:#fff;outline:none;font-size:15px}
+  .searchrow input::placeholder{color:rgba(255,255,255,.55)}
+  .filters{margin-top:8px;background:rgba(15,15,18,.85);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:none}
+  .filters.open{display:flex;flex-direction:column;gap:10px}
+  .resultcount{text-align:center;font-size:12px;color:rgba(255,255,255,.65);margin-top:8px}
+  .fab{position:fixed;right:22px;bottom:22px;z-index:4;border-radius:999px;padding:14px 20px;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .feedempty{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;text-align:center;padding:20px}
+  .feedempty > div{pointer-events:auto}
+  /* list view + reduced motion */
+  body.feedmode.listview #space{overflow-y:auto;padding:40px 14px 100px}
+  body.feedmode.listview .float{position:static;width:auto;max-width:620px;margin:0 auto 12px;animation:none!important}
+  body.feedmode.listview .float .sway{animation:none!important;translate:none}
+  body.feedmode.listview .fcard{opacity:1}
+  @media (max-width:640px){.float{width:200px}.feedbar{top:116px}}
+  @media (prefers-reduced-motion:reduce){body.feedmode .bg{animation:none}}
+
+  .listrow{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+  .listrow > div{flex:1;display:flex;flex-direction:column;gap:6px}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="app">
+  <div id="demoBar"></div>
+  <nav class="nav" id="nav"></nav>
+  <div id="space"></div>
+  <main class="wrap" id="view"></main>
+</div>
+
+<div class="modal" id="modal"><div class="glass stack" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const C = window.SITE_CONFIG || {};
+const DEMO = !C.SUPABASE_URL || !C.SUPABASE_ANON_KEY;
+document.title = C.SITE_NAME || 'Buildroom';
+
+const ROLES = ['dev','design','music','video','marketing','writing','art','business','other'];
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl = u => { try { const x = new URL(u); return (x.protocol==='https:'||x.protocol==='http:') ? x.href : ''; } catch { return ''; } };
+const ytId = u => { if(!u) return null; const m = String(u).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(u) ? u : null); };
+const ago = t => { const s=(Date.now()-new Date(t))/1000; if(s<60) return 'now'; if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; };
+const colorFor = id => { let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))%360; return `hsl(${h} 80% 72%)`; };
+const avatar = p => `<span class="avatar" style="background:${colorFor(p?.id)}">${esc((p?.display_name||'?')[0].toUpperCase())}</span>`;
+const ls = { get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}} };
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2800)}
+function modal(html, raw){ $('#modal').innerHTML = raw ? `<div class="mwrap">${html}</div>` : `<div class="glass stack mwrap" id="modalBody">${html}</div>`; $('#modal').classList.add('open'); }
+function closeModal(){ $('#modal').classList.remove('open'); }
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+const socialUrl = (k,v) => {
+  if(!v) return '';
+  v=String(v).trim().replace(/^@/,'');
+  if(k==='email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'mailto:'+v : '';
+  if(/^https?:\/\//.test(v)) return safeUrl(v);
+  if(!/^[A-Za-z0-9._]{1,40}$/.test(v)) return '';
+  return k==='instagram' ? 'https://instagram.com/'+v : k==='tiktok' ? 'https://tiktok.com/@'+v : '';
+};
+
+/* ================= background ================= */
+let currentBg = null;
+function setBg(url, zoom){
+  document.body.classList.remove('feedmode','listview');
+  const id = ytId(url), z = Number(zoom)||1.15, key = id+'|'+z;
+  if(key===currentBg) return; currentBg = key;
+  const bg = $('#bg'); bg.innerHTML='';
+  if(!id || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const p = new URLSearchParams({autoplay:1,mute:1,loop:1,playlist:id,controls:0,playsinline:1,rel:0,modestbranding:1,disablekb:1,iv_load_policy:3,fs:0});
+  const f = document.createElement('iframe');
+  f.src='https://www.youtube.com/embed/'+id+'?'+p; f.title='Background video'; f.tabIndex=-1;
+  f.setAttribute('aria-hidden','true'); f.allow='autoplay; encrypted-media'; f.referrerPolicy='strict-origin-when-cross-origin';
+  f.style.transform=`translate(-50%,-50%) scale(${z})`;
+  bg.appendChild(f);
+}
+const defaultBg = () => setBg(C.DEFAULT_BG_VIDEO, C.DEFAULT_BG_ZOOM);
+
+/* ================= data layer ================= */
+let api;
+if(!DEMO){
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  const sb = createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  const chk = ({data,error}) => { if(error) throw error; return data; };
+  api = {
+    async session(){ const {data}=await sb.auth.getSession(); return data.session?.user || null; },
+    async signUp(email,pw,meta){ const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:meta,emailRedirectTo:location.origin}}); if(error) throw error; return data; },
+    async signIn(email,pw){ const {error}=await sb.auth.signInWithPassword({email,password:pw}); if(error) throw error; },
+    async signOut(){ await sb.auth.signOut(); },
+    async profileById(id){ return chk(await sb.from('profiles').select('*').eq('id',id).maybeSingle()); },
+    async profileByUsername(u){ return chk(await sb.from('profiles').select('*').eq('username',u).maybeSingle()); },
+    async profilesByIds(ids){ if(!ids.length) return []; return chk(await sb.from('profiles').select('*').in('id',ids)); },
+    async saveProfile(p){ return chk(await sb.from('profiles').upsert(p).select().single()); },
+    async usernameTaken(u){ const d=chk(await sb.from('profiles').select('id').eq('username',u)); return d.length>0; },
+    async posts({kind,role,author}={}){ let q=sb.from('posts').select('*').order('created_at',{ascending:false}).limit(100); if(kind) q=q.eq('kind',kind); if(role) q=q.contains('roles',[role]); if(author) q=q.eq('author_id',author); return chk(await q); },
+    async createPost(p){ return chk(await sb.from('posts').insert(p).select().single()); },
+    async deletePost(id){ chk(await sb.from('posts').delete().eq('id',id)); },
+    async myInterests(uid){ return chk(await sb.from('interests').select('post_id').eq('user_id',uid)).map(r=>r.post_id); },
+    async addInterest(post_id,user_id){ chk(await sb.from('interests').upsert({post_id,user_id})); },
+    async interestCounts(ids){ if(!ids.length) return {}; const d=chk(await sb.from('interests').select('post_id').in('post_id',ids)); const m={}; d.forEach(r=>m[r.post_id]=(m[r.post_id]||0)+1); return m; },
+    async myMessages(uid){ return chk(await sb.from('messages').select('*').or(`sender_id.eq.${uid},recipient_id.eq.${uid}`).order('created_at',{ascending:false}).limit(500)); },
+    async thread(uid,other){ return chk(await sb.from('messages').select('*').or(`and(sender_id.eq.${uid},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${uid})`).order('created_at',{ascending:true}).limit(500)); },
+    async send(sender_id,recipient_id,body){ return chk(await sb.from('messages').insert({sender_id,recipient_id,body}).select().single()); },
+    async myBlocks(uid){ return chk(await sb.from('blocks').select('blocked_id').eq('blocker_id',uid)).map(r=>r.blocked_id); },
+    async block(blocker_id,blocked_id){ chk(await sb.from('blocks').upsert({blocker_id,blocked_id})); },
+    async unblock(blocker_id,blocked_id){ chk(await sb.from('blocks').delete().eq('blocker_id',blocker_id).eq('blocked_id',blocked_id)); },
+    async report(reporter_id,target_type,target_id,reason){ chk(await sb.from('reports').insert({reporter_id,target_type,target_id:String(target_id),reason})); },
+    onAuth(cb){ sb.auth.onAuthStateChange(()=>cb()); }
+  };
+} else {
+  // ---------- DEMO MODE: everything saved in this browser only ----------
+  const K='buildroom_demo';
+  const uid=()=> (crypto.randomUUID ? crypto.randomUUID() : 'id'+Math.random().toString(36).slice(2));
+  let db = ls.get(K,null);
+  if(!db){
+    const a=uid(), b=uid(), now=Date.now();
+    db={users:[],session:null,profiles:[
+      {id:a,username:'maya_designs',display_name:'Maya (demo)',bio:'UI designer. Looking for a dev to build a habit app with.',skills:['design'],bg_video:'',bg_zoom:1.15,accent:'#ffffff',socials:{instagram:'',tiktok:'',email:''},projects:[{title:'Habit app',desc:'Streaks that feel like a game.',link:'',status:'Idea'}],music:[],created_at:new Date(now-864e5).toISOString()},
+      {id:b,username:'jay_codes',display_name:'Jay (demo)',bio:'I write code and make beats. Down to join something weird.',skills:['dev','music'],bg_video:'',bg_zoom:1.15,accent:'#ffffff',socials:{instagram:'',tiktok:'',email:''},projects:[],music:[],created_at:new Date(now-2*864e5).toISOString()}
+    ],posts:[
+      {id:uid(),author_id:a,kind:'building',title:'Habit tracker that feels like a game',body:'I have the designs done. Need someone who can build the app (React Native or web).',roles:['dev'],created_at:new Date(now-3*36e5).toISOString()},
+      {id:uid(),author_id:b,kind:'joining',title:'Developer + producer looking for a project',body:'Can build web apps and make music for videos. Show me your idea.',roles:['dev','music'],created_at:new Date(now-9*36e5).toISOString()}
+    ],interests:[],messages:[],blocks:[],reports:[]};
+  }
+  const save=()=>ls.set(K,db);
+  const sleep=()=>Promise.resolve();
+  api = {
+    async session(){ return db.session ? {id:db.session, email:db.users.find(u=>u.id===db.session)?.email} : null; },
+    async signUp(email,pw,meta){ if(db.users.find(u=>u.email===email)) throw new Error('That email already has an account.'); const id=uid(); db.users.push({id,email,pw,meta}); db.session=id; save(); return {user:{id}}; },
+    async signIn(email,pw){ const u=db.users.find(u=>u.email===email&&u.pw===pw); if(!u) throw new Error('Wrong email or password.'); db.session=u.id; save(); },
+    async signOut(){ db.session=null; save(); },
+    async profileById(id){ return db.profiles.find(p=>p.id===id)||null; },
+    async profileByUsername(u){ return db.profiles.find(p=>p.username===u)||null; },
+    async profilesByIds(ids){ return db.profiles.filter(p=>ids.includes(p.id)); },
+    async saveProfile(p){ const i=db.profiles.findIndex(x=>x.id===p.id); const full={created_at:new Date().toISOString(),...(i>=0?db.profiles[i]:{}),...p}; if(i>=0) db.profiles[i]=full; else db.profiles.push(full); save(); return full; },
+    async usernameTaken(u){ return !!db.profiles.find(p=>p.username===u); },
+    async posts({kind,role,author}={}){ return db.posts.filter(p=>(!kind||p.kind===kind)&&(!role||p.roles.includes(role))&&(!author||p.author_id===author)).sort((a,b)=>b.created_at.localeCompare(a.created_at)); },
+    async createPost(p){ const x={id:uid(),created_at:new Date().toISOString(),...p}; db.posts.push(x); save(); return x; },
+    async deletePost(id){ db.posts=db.posts.filter(p=>p.id!==id); save(); },
+    async myInterests(u){ return db.interests.filter(i=>i.user_id===u).map(i=>i.post_id); },
+    async addInterest(post_id,user_id){ if(!db.interests.find(i=>i.post_id===post_id&&i.user_id===user_id)) db.interests.push({post_id,user_id}); save(); },
+    async interestCounts(ids){ const m={}; db.interests.forEach(i=>{ if(ids.includes(i.post_id)) m[i.post_id]=(m[i.post_id]||0)+1; }); return m; },
+    async myMessages(u){ return db.messages.filter(m=>m.sender_id===u||m.recipient_id===u).sort((a,b)=>b.created_at.localeCompare(a.created_at)); },
+    async thread(u,o){ return db.messages.filter(m=>(m.sender_id===u&&m.recipient_id===o)||(m.sender_id===o&&m.recipient_id===u)).sort((a,b)=>a.created_at.localeCompare(b.created_at)); },
+    async send(s,r,body){ if(db.blocks.find(b=>b.blocker_id===r&&b.blocked_id===s)) throw new Error('You can\'t message this person.'); const m={id:uid(),sender_id:s,recipient_id:r,body,created_at:new Date().toISOString()}; db.messages.push(m); save(); return m; },
+    async myBlocks(u){ return db.blocks.filter(b=>b.blocker_id===u).map(b=>b.blocked_id); },
+    async block(a,b){ if(!db.blocks.find(x=>x.blocker_id===a&&x.blocked_id===b)) db.blocks.push({blocker_id:a,blocked_id:b}); save(); },
+    async unblock(a,b){ db.blocks=db.blocks.filter(x=>!(x.blocker_id===a&&x.blocked_id===b)); save(); },
+    async report(r,t,id,reason){ db.reports.push({reporter_id:r,target_type:t,target_id:id,reason,created_at:new Date().toISOString()}); save(); },
+    onAuth(){}
+  };
+}
+
+/* ================= session state ================= */
+let me = null;        // auth user
+let myProfile = null; // profile row
+let blocked = [];
+async function loadSession(){
+  me = await api.session();
+  myProfile = me ? await api.profileById(me.id) : null;
+  blocked = me ? await api.myBlocks(me.id) : [];
+}
+const seenKey = () => 'br_seen_'+(me?.id||'');
+const getSeen = () => ls.get(seenKey(),{});
+const markSeen = (other) => { const s=getSeen(); s[other]=new Date().toISOString(); ls.set(seenKey(),s); };
+
+async function unreadCount(){
+  if(!me || !myProfile) return 0;
+  const msgs = await api.myMessages(me.id), seen=getSeen(), latest={};
+  msgs.forEach(m=>{ if(m.recipient_id===me.id && !latest[m.sender_id]) latest[m.sender_id]=m.created_at; });
+  return Object.entries(latest).filter(([o,t])=>!blocked.includes(o) && (!seen[o] || t>seen[o])).length;
+}
+
+/* ================= nav ================= */
+async function renderNav(route){
+  const n = await unreadCount();
+  const on = r => route===r ? ' on' : '';
+  $('#nav').innerHTML = `
+    <a class="brand" href="#/">${esc(C.SITE_NAME||'Buildroom')}</a>
+    <a class="link${on('feed')}" href="#/">Feed</a>
+    ${myProfile ? `
+      <a class="link${on('messages')}" href="#/messages">Messages${n?`<span class="badge">${n}</span>`:''}</a>
+      <a class="link${on('me')}" href="#/u/${esc(myProfile.username)}">My page</a>
+      <a class="link" href="#/logout">Log out</a>` :
+      `<a class="link${on('login')}" href="#/login">Log in / Sign up</a>`}`;
+  $('#demoBar').innerHTML = DEMO ? `<div class="demo">Demo mode — everything is saved only in this browser. Add your Supabase keys in config.js to go live.</div>` : '';
+}
+
+/* ================= router ================= */
+let pollTimer = null;
+async function route(){
+  clearInterval(pollTimer);
+  $('#space').innerHTML=''; $('#view').style.display='';
+  const h = location.hash.replace(/^#\/?/,'');
+  const [page, arg] = h.split('/');
+  try{
+    await loadSession();
+    if(me && !myProfile && page!=='setup' && page!=='logout'){ location.hash='#/setup'; return; }
+    if(page==='login') return viewLogin();
+    if(page==='logout'){ await api.signOut(); location.hash='#/'; return; }
+    if(page==='setup') return viewSetup();
+    if(page==='u' && arg) return viewProfile(decodeURIComponent(arg));
+    if(page==='edit') return viewEdit();
+    if(page==='messages') return arg ? viewThread(decodeURIComponent(arg)) : viewInbox();
+    return viewFeed();
+  }catch(e){
+    console.error(e);
+    $('#view').innerHTML = `<div class="glass"><p class="err">Something went wrong: ${esc(e.message||e)}</p></div>`;
+  }
+}
+window.addEventListener('hashchange', ()=>{ closeModal(); route(); });
+api.onAuth(()=>route());
+const needLogin = () => { if(!me){ location.hash='#/login'; return true; } return false; };
+
+/* ================= FEED ================= */
+let feedFilter = {q:'', kind:'', role:''};
+let feedList = false;
+const matches = (p,a) => {
+  if(feedFilter.kind && p.kind!==feedFilter.kind) return false;
+  if(feedFilter.role && !(p.roles||[]).includes(feedFilter.role)) return false;
+  const q = feedFilter.q.trim().toLowerCase();
+  if(!q) return true;
+  const hay = [p.title,p.body,(p.roles||[]).join(' '),p.kind==='building'?'building':'join joining',a?.display_name,a?.username].join(' ').toLowerCase();
+  return q.split(/\s+/).every(w=>hay.includes(w));
+};
+async function viewFeed(){
+  setBg(null); document.body.classList.add('feedmode'); document.body.classList.toggle('listview', feedList || matchMedia('(prefers-reduced-motion: reduce)').matches);
+  await renderNav('feed');
+  const posts = (await api.posts({})).filter(p=>!blocked.includes(p.author_id));
+  const authors = await api.profilesByIds([...new Set(posts.map(p=>p.author_id))]);
+  const A = Object.fromEntries(authors.map(a=>[a.id,a]));
+  const mine = me ? await api.myInterests(me.id) : [];
+  const counts = await api.interestCounts(posts.map(p=>p.id));
+
+  // ---- floating cards ----
+  const W = innerWidth, cardW = W<640?200:260;
+  const lanes = Math.max(2, Math.floor(W/(cardW+30)));
+  const copies = feedList ? 1 : posts.length<4 ? 3 : posts.length<9 ? 2 : 1;
+  const items = [];
+  for(let c=0;c<copies;c++) posts.forEach((p,i)=>items.push({p,i,k:c*posts.length+i}));
+  const total = items.length;
+  const rand = (a,b)=>a+Math.random()*(b-a);
+  const floats = items.map(({p,i,k})=>{
+    const a=A[p.author_id], lane=k%lanes;
+    const frac = Math.min(.98,Math.max(.02,(lane+.5)/lanes + rand(-.12,.12)/lanes*2));
+    const dur = rand(34,52), delay = -((k/total)*dur + rand(0,4));
+    const s = rand(.82,1.05), o = (.62 + (s-.82)*1.6).toFixed(2);
+    return `<div class="float" data-i="${i}" style="left:calc((100% - ${cardW}px) * ${frac.toFixed(3)});--dur:${dur.toFixed(1)}s;--delay:${delay.toFixed(1)}s;--sway:${rand(5,9).toFixed(1)}s;--s:${s.toFixed(2)};z-index:${Math.round(s*100)}">
+      <div class="sway"><button class="fcard" type="button" data-open="${i}" style="--o:${o}" aria-label="${esc(p.title)}">
+        <div class="meta">${avatar(a)}<span>${esc(a?.display_name||'Unknown')}</span><span style="margin-left:auto" class="kind ${esc(p.kind)}">${p.kind==='building'?'Building':'Joining'}</span></div>
+        <h3>${esc(p.title)}</h3>
+        ${(p.roles||[]).length?`<div class="tags">${p.roles.slice(0,3).map(r=>`<span>${esc(r)}</span>`).join('')}</div>`:''}
+      </button></div></div>`;
+  }).join('');
+  $('#space').innerHTML = floats;
+
+  // ---- search bar + filters ----
+  const chip=(label,key,val)=>`<button type="button" class="chip${feedFilter[key]===val?' on':''}" data-f="${key}" data-v="${val}">${label}</button>`;
+  $('#view').style.display='block';
+  $('#view').innerHTML = `
+    <div class="feedbar">
+      <div class="searchrow">
+        <input id="q" type="search" placeholder="Search ideas, skills, people…" value="${esc(feedFilter.q)}" aria-label="Search posts">
+        <button class="btn ghost small" type="button" id="fToggle" aria-expanded="false">Filters${(feedFilter.kind||feedFilter.role)?' •':''}</button>
+        <button class="btn ghost small" type="button" id="vToggle">${feedList?'Float':'List'}</button>
+      </div>
+      <div class="filters" id="filters">
+        <div class="small muted">Type</div>
+        <div class="row">${chip('Anything','kind','')}${chip('Building something','kind','building')}${chip('Want to join','kind','joining')}</div>
+        <div class="small muted">Role</div>
+        <div class="row">${chip('Any','role','')}${ROLES.map(r=>chip(r,'role',r)).join('')}</div>
+      </div>
+      <div class="resultcount" id="rcount"></div>
+    </div>
+    ${posts.length?'':`<div class="feedempty"><div class="glass stack" style="max-width:380px;align-items:center"><h3>Nothing floating yet</h3><p class="muted">Be the first to post what you're building.</p></div></div>`}
+    ${myProfile ? `<button class="btn fab" id="newPost" type="button">+ Post</button>` : `<a class="btn fab" href="#/login">Join to post</a>`}`;
+
+  const apply = () => {
+    let n=0;
+    document.querySelectorAll('.float').forEach(f=>{ const p=posts[+f.dataset.i]; const ok=matches(p,A[p.author_id]); f.classList.toggle('hide',!ok); });
+    n = posts.filter(p=>matches(p,A[p.author_id])).length;
+    const filtered = feedFilter.q||feedFilter.kind||feedFilter.role;
+    $('#rcount').textContent = posts.length ? (filtered ? `${n} of ${posts.length} posts` : `${posts.length} post${posts.length===1?'':'s'} floating`) : '';
+  };
+  apply();
+  $('#q').oninput = e => { feedFilter.q = e.target.value; apply(); };
+  $('#fToggle').onclick = () => { const f=$('#filters'); f.classList.toggle('open'); $('#fToggle').setAttribute('aria-expanded', f.classList.contains('open')); };
+  $('#vToggle').onclick = () => { feedList=!feedList; viewFeed(); };
+  document.querySelectorAll('#filters [data-f]').forEach(b=>b.onclick=()=>{
+    feedFilter[b.dataset.f]=b.dataset.v;
+    document.querySelectorAll(`#filters [data-f="${b.dataset.f}"]`).forEach(x=>x.classList.toggle('on',x===b));
+    $('#fToggle').textContent = 'Filters'+((feedFilter.kind||feedFilter.role)?' •':'');
+    apply();
+  });
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{
+    const p=posts[+b.dataset.open];
+    modal(postCard(p,A[p.author_id],mine.includes(p.id),counts[p.id]||0), true);
+    bindPostActions();
+  });
+  if(myProfile) $('#newPost').onclick = () => { modal(composer(), true); bindComposer(); $('#composer [name=title]').focus(); };
+}
+function composer(){
+  return `<form class="glass stack" id="composer">
+    <div class="row">
+      <label class="chip on" style="margin:0"><input type="radio" name="kind" value="building" checked hidden> I'm building something</label>
+      <label class="chip" style="margin:0"><input type="radio" name="kind" value="joining" hidden> I want to join something</label>
+    </div>
+    <input type="text" name="title" maxlength="120" placeholder="Building a habit app, need a developer" required>
+    <textarea name="body" maxlength="2000" placeholder="Details: what it is, what you need, what you bring"></textarea>
+    <div><div class="small muted" style="margin-bottom:6px">Roles involved</div><div class="row">${ROLES.map(r=>`<label class="chip" style="margin:0"><input type="checkbox" name="roles" value="${r}" hidden> ${r}</label>`).join('')}</div></div>
+    <div class="row" style="justify-content:flex-end"><span class="err" id="postErr"></span><button class="btn" type="submit">Post</button></div>
+  </form>`;
+}
+function bindComposer(){
+  const f=$('#composer');
+  f.querySelectorAll('label.chip').forEach(l=>{
+    const i=l.querySelector('input');
+    i.onchange=()=>{ if(i.type==='radio') f.querySelectorAll('input[name=kind]').forEach(r=>r.parentElement.classList.toggle('on',r.checked)); else l.classList.toggle('on',i.checked); };
+  });
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    const fd=new FormData(f), title=String(fd.get('title')).trim();
+    if(!title){ $('#postErr').textContent='Add a title.'; return; }
+    try{
+      await api.createPost({author_id:me.id,kind:fd.get('kind'),title,body:String(fd.get('body')).trim(),roles:fd.getAll('roles')});
+      closeModal(); toast('Posted'); viewFeed();
+    }catch(err){ $('#postErr').textContent=err.message; }
+  };
+}
+function postCard(p,a,interested,count){
+  const own = me && p.author_id===me.id;
+  return `<article class="glass stack post" data-id="${esc(p.id)}" data-author="${esc(p.author_id)}" data-title="${esc(p.title)}">
+    <div class="row" style="justify-content:space-between">
+      <a class="who" href="#/u/${esc(a?.username||'')}" style="text-decoration:none">${avatar(a)}<div><div style="font-weight:600">${esc(a?.display_name||'Unknown')}</div><div class="small muted">@${esc(a?.username||'')} · ${ago(p.created_at)}</div></div></a>
+      <span class="kind ${esc(p.kind)}">${p.kind==='building'?'Building':'Want to join'}</span>
+    </div>
+    <h3>${esc(p.title)}</h3>
+    ${p.body?`<p class="muted" style="white-space:pre-wrap">${esc(p.body)}</p>`:''}
+    ${p.roles?.length?`<div class="row">${p.roles.map(r=>`<span class="chip" style="cursor:default">${esc(r)}</span>`).join('')}</div>`:''}
+    <div class="actions">
+      ${own ? `<span class="small muted">${count} interested</span><button class="btn danger small" data-act="delete">Delete</button>` : `
+        <button class="btn small" data-act="interest" ${interested?'disabled':''}>${interested?'Interest sent':"I'm interested"}</button>
+        <a class="btn ghost small" href="#/messages/${esc(a?.username||'')}">Message</a>
+        <button class="btn ghost small" data-act="report">Report</button>`}
+    </div>
+  </article>`;
+}
+function bindPostActions(){
+  document.querySelectorAll('.post [data-act]').forEach(b=>b.onclick=async()=>{
+    const card=b.closest('.post'), id=card.dataset.id, author=card.dataset.author, title=card.dataset.title;
+    if(b.dataset.act==='delete'){ return confirmBox('Delete this post?','Delete',async()=>{ await api.deletePost(id); toast('Deleted'); route(); }); }
+    if(needLogin()) return;
+    if(!myProfile){ location.hash='#/setup'; return; }
+    if(b.dataset.act==='interest'){
+      try{
+        await api.addInterest(id,me.id);
+        await api.send(me.id,author,`Hey! I'm interested in your post: "${title}"`);
+        b.disabled=true; b.textContent='Interest sent'; toast('Sent — they got a message from you');
+      }catch(err){ toast(err.message); }
+    }
+    if(b.dataset.act==='report') reportBox('post',id);
+  });
+}
+
+/* ================= dialogs ================= */
+function confirmBox(text,label,fn){
+  modal(`<h3>${esc(text)}</h3><div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mNo">Cancel</button><button class="btn danger" id="mYes">${esc(label)}</button></div>`);
+  $('#mNo').onclick=closeModal; $('#mYes').onclick=async()=>{ closeModal(); await fn(); };
+}
+function reportBox(type,id){
+  const reasons=['Spam or scam','Harassment or hate','Sexual content','Looks under age','Impersonation','Something else'];
+  modal(`<h3>Report</h3><p class="muted small">Reports go to the site admin.</p>
+    <select id="rReason">${reasons.map(r=>`<option>${r}</option>`).join('')}</select>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mNo">Cancel</button><button class="btn danger" id="mYes">Send report</button></div>`);
+  $('#mNo').onclick=closeModal;
+  $('#mYes').onclick=async()=>{ try{ await api.report(me.id,type,id,$('#rReason').value); closeModal(); toast('Report sent. Thanks.'); }catch(e){ toast(e.message); } };
+}
+
+/* ================= LOGIN / SIGN UP ================= */
+function viewLogin(){
+  defaultBg(); renderNav('login');
+  let mode='signup';
+  const draw=()=>{
+    $('#view').innerHTML=`
+      <form class="glass stack" id="auth" style="max-width:420px;margin:0 auto">
+        <h3 style="font-size:24px">${mode==='signup'?'Make an account':'Welcome back'}</h3>
+        <div><label for="aEmail">Email</label><input id="aEmail" type="email" required autocomplete="email"></div>
+        <div><label for="aPw">Password</label><input id="aPw" type="password" minlength="8" required autocomplete="${mode==='signup'?'new-password':'current-password'}"></div>
+        ${mode==='signup'?`
+          <div><label for="aDob">Date of birth</label><input id="aDob" type="date" required></div>
+          <label class="row small" style="color:rgba(255,255,255,.8)"><input type="checkbox" id="aRules" required> I'll be respectful. No harassment, spam or sexual content.</label>`:''}
+        <div class="err" id="aErr"></div>
+        <button class="btn" type="submit">${mode==='signup'?'Sign up':'Log in'}</button>
+        <p class="small muted">${mode==='signup'?'Already have an account?':'New here?'} <a href="#" id="aSwap">${mode==='signup'?'Log in':'Sign up'}</a></p>
+      </form>`;
+    $('#aSwap').onclick=e=>{e.preventDefault(); mode=mode==='signup'?'login':'signup'; draw();};
+    $('#auth').onsubmit=async e=>{
+      e.preventDefault(); $('#aErr').textContent='';
+      const email=$('#aEmail').value.trim().toLowerCase(), pw=$('#aPw').value;
+      try{
+        if(mode==='signup'){
+          const dob=new Date($('#aDob').value+'T00:00:00'), n=new Date();
+          let age=n.getFullYear()-dob.getFullYear(); const md=n.getMonth()-dob.getMonth(); if(md<0||(md===0&&n.getDate()<dob.getDate())) age--;
+          if(isNaN(age)||age>110){ $('#aErr').textContent='Enter a real date of birth.'; return; }
+          if(age<(C.MIN_AGE||18)){ $('#aErr').textContent=`You need to be ${C.MIN_AGE||18} or older to join.`; return; }
+          const r=await api.signUp(email,pw,{birthdate:$('#aDob').value});
+          if(!DEMO && !r.session){ $('#view').innerHTML=`<div class="glass stack" style="max-width:420px;margin:0 auto"><h3>Check your email</h3><p class="muted">We sent a confirmation link to ${esc(email)}. Click it, then log in.</p></div>`; return; }
+          location.hash='#/setup';
+        } else {
+          await api.signIn(email,pw); location.hash='#/';
+        }
+      }catch(err){ $('#aErr').textContent=err.message||String(err); }
+    };
+  };
+  draw();
+}
+
+/* ================= FIRST-TIME SETUP ================= */
+async function viewSetup(){
+  if(needLogin()) return;
+  if(myProfile){ location.hash='#/'; return; }
+  defaultBg(); renderNav('');
+  $('#view').innerHTML=`
+    <form class="glass stack" id="setup" style="max-width:420px;margin:0 auto">
+      <h3 style="font-size:24px">Pick your name</h3>
+      <div><label for="sName">Display name</label><input id="sName" type="text" maxlength="50" required></div>
+      <div><label for="sUser">Username (your page will be /u/username)</label><input id="sUser" type="text" maxlength="20" required pattern="[a-z0-9_]{3,20}" placeholder="lowercase, numbers, _"></div>
+      <div class="err" id="sErr"></div>
+      <button class="btn" type="submit">Continue</button>
+    </form>`;
+  $('#sUser').oninput=e=>e.target.value=e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
+  $('#setup').onsubmit=async e=>{
+    e.preventDefault();
+    const u=$('#sUser').value, name=$('#sName').value.trim();
+    if(!/^[a-z0-9_]{3,20}$/.test(u)){ $('#sErr').textContent='3–20 characters: lowercase letters, numbers, _'; return; }
+    try{
+      if(await api.usernameTaken(u)){ $('#sErr').textContent='That username is taken.'; return; }
+      await api.saveProfile({id:me.id,username:u,display_name:name,bio:'',skills:[],bg_video:'',bg_zoom:1.15,accent:'#ffffff',socials:{},projects:[],music:[]});
+      location.hash='#/edit';
+    }catch(err){ $('#sErr').textContent=err.message; }
+  };
+}
+
+/* ================= PROFILE PAGE ================= */
+async function viewProfile(username){
+  const p = await api.profileByUsername(username);
+  if(!p){ defaultBg(); await renderNav(''); $('#view').innerHTML=`<div class="glass"><p>No one with that username.</p></div>`; return; }
+  const own = me && me.id===p.id, isBlocked = blocked.includes(p.id);
+  setBg(p.bg_video || C.DEFAULT_BG_VIDEO, p.bg_video ? p.bg_zoom : C.DEFAULT_BG_ZOOM);
+  await renderNav(own?'me':'');
+  const posts = await api.posts({author:p.id});
+  const s = p.socials||{};
+  const socials = [['instagram','Instagram'],['tiktok','TikTok'],['email','Email']].map(([k,l])=>{ const u=socialUrl(k,s[k]); return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${l}</a>`:''; }).join('');
+  const projects = (p.projects||[]).filter(x=>x.title);
+  const music = (p.music||[]).filter(x=>x.song||x.artist);
+  const accent = /^#[0-9a-fA-F]{6}$/.test(p.accent||'') ? p.accent : '#ffffff';
+
+  $('#view').innerHTML=`
+    <div class="stack" style="gap:72px;padding-top:6vh">
+      <header class="stack" style="gap:14px">
+        <p class="small" style="letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:${accent}">@${esc(p.username)}</p>
+        <h1>${esc(p.display_name)}</h1>
+        ${p.bio?`<p style="font-size:19px;max-width:540px;white-space:pre-wrap">${esc(p.bio)}</p>`:''}
+        ${(p.skills||[]).length?`<div class="row">${p.skills.map(r=>`<span class="chip" style="cursor:default">${esc(r)}</span>`).join('')}</div>`:''}
+        ${socials?`<nav class="links" aria-label="Links">${socials}</nav>`:''}
+        <div class="row" style="margin-top:6px">
+          ${own ? `<a class="btn" href="#/edit">Edit my page</a>` : me ? `
+            ${isBlocked?'':`<a class="btn" href="#/messages/${esc(p.username)}">Message</a>`}
+            <button class="btn ghost" id="pBlock">${isBlocked?'Unblock':'Block'}</button>
+            <button class="btn ghost" id="pReport">Report</button>` : `<a class="btn" href="#/login">Log in to message</a>`}
+        </div>
+      </header>
+      ${projects.length?`<section class="stack"><h2>Projects</h2><div class="cards">${projects.map(x=>{const l=safeUrl(x.link);return `<article class="glass card stack" style="gap:8px"><div class="row" style="justify-content:space-between"><h3>${esc(x.title)}</h3>${x.status?`<span class="small muted">${esc(x.status)}</span>`:''}</div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}${l?`<a href="${esc(l)}" target="_blank" rel="noopener noreferrer" class="small" style="color:${accent}">Open</a>`:''}</article>`}).join('')}</div></section>`:''}
+      ${music.length?`<section class="stack"><h2>On repeat</h2><ol class="music">${music.map((m,i)=>`<li><span class="n">${String(i+1).padStart(2,'0')}</span><span class="t">${esc(m.song)}</span><span class="muted">${esc(m.artist)}</span></li>`).join('')}</ol></section>`:''}
+      ${posts.length?`<section class="stack"><h2>Posts</h2>${posts.map(x=>postCard(x,p,false,0)).join('')}</section>`:''}
+      ${own && !projects.length && !music.length && !p.bio ? `<div class="glass"><p>Your page is empty. <a href="#/edit">Add your bio, projects, music and background video.</a></p></div>`:''}
+    </div>`;
+  bindPostActions();
+  if(!own && me){
+    $('#pBlock').onclick=()=> isBlocked
+      ? (async()=>{ await api.unblock(me.id,p.id); toast('Unblocked'); route(); })()
+      : confirmBox(`Block @${p.username}? They won't be able to message you and you won't see their posts.`,'Block',async()=>{ await api.block(me.id,p.id); toast('Blocked'); route(); });
+    $('#pReport').onclick=()=>reportBox('profile',p.id);
+  }
+}
+
+/* ================= EDIT PAGE ================= */
+async function viewEdit(){
+  if(needLogin()) return;
+  const p = myProfile; if(!p){ location.hash='#/setup'; return; }
+  setBg(p.bg_video || C.DEFAULT_BG_VIDEO, p.bg_video ? p.bg_zoom : C.DEFAULT_BG_ZOOM);
+  await renderNav('me');
+  const s=p.socials||{};
+  let projects=[...(p.projects||[])], music=[...(p.music||[])];
+  $('#view').innerHTML=`
+    <form class="glass stack" id="edit">
+      <h3 style="font-size:24px">Edit your page</h3>
+      <div><label for="eName">Display name</label><input id="eName" type="text" maxlength="50" value="${esc(p.display_name)}" required></div>
+      <div><label for="eBio">Bio</label><textarea id="eBio" maxlength="500">${esc(p.bio)}</textarea></div>
+      <div><div class="small muted" style="margin:10px 0 6px">What you do</div><div class="row" id="eSkills">${ROLES.map(r=>`<label class="chip${(p.skills||[]).includes(r)?' on':''}" style="margin:0"><input type="checkbox" value="${r}" ${(p.skills||[]).includes(r)?'checked':''} hidden> ${r}</label>`).join('')}</div></div>
+
+      <h2 style="margin-top:14px">Background</h2>
+      <div><label for="eVid">YouTube link for your background video</label><input id="eVid" type="url" value="${esc(p.bg_video)}" placeholder="https://youtu.be/..."></div>
+      <div><label for="eZoom">Zoom (raise this if you see black bars) — <span id="eZoomV">${esc(p.bg_zoom??1.15)}</span>×</label><input id="eZoom" type="range" min="1" max="2" step="0.05" value="${esc(p.bg_zoom??1.15)}" style="width:100%"></div>
+      <div><label for="eAccent">Accent color</label><input id="eAccent" type="color" value="${esc(/^#[0-9a-fA-F]{6}$/.test(p.accent||'')?p.accent:'#ffffff')}"></div>
+
+      <h2 style="margin-top:14px">Links</h2>
+      <div><label for="eIg">Instagram username</label><input id="eIg" type="text" value="${esc(s.instagram)}" placeholder="yourhandle"></div>
+      <div><label for="eTt">TikTok username</label><input id="eTt" type="text" value="${esc(s.tiktok)}" placeholder="yourhandle"></div>
+      <div><label for="eEm">Public email</label><input id="eEm" type="email" value="${esc(s.email)}" placeholder="you@example.com"></div>
+
+      <h2 style="margin-top:14px">Projects</h2>
+      <div id="eProjects"></div>
+      <button class="btn ghost small" type="button" id="addProj" style="align-self:flex-start">+ Add project</button>
+
+      <h2 style="margin-top:14px">Music on repeat</h2>
+      <div id="eMusic"></div>
+      <button class="btn ghost small" type="button" id="addSong" style="align-self:flex-start">+ Add song</button>
+
+      <div class="row" style="justify-content:flex-end;margin-top:10px"><span class="err" id="eErr"></span><a class="btn ghost" href="#/u/${esc(p.username)}">Cancel</a><button class="btn" type="submit">Save</button></div>
+    </form>`;
+
+  $('#eSkills').querySelectorAll('label').forEach(l=>{const i=l.querySelector('input'); i.onchange=()=>l.classList.toggle('on',i.checked);});
+  $('#eZoom').oninput=e=>{ $('#eZoomV').textContent=e.target.value; setBg($('#eVid').value||C.DEFAULT_BG_VIDEO, e.target.value); };
+  $('#eVid').onchange=e=>setBg(e.target.value||C.DEFAULT_BG_VIDEO, $('#eZoom').value);
+
+  const readLists=()=>{
+    projects=[...document.querySelectorAll('#eProjects .listrow')].map(r=>({title:r.querySelector('[data-k=title]').value.trim(),desc:r.querySelector('[data-k=desc]').value.trim(),link:r.querySelector('[data-k=link]').value.trim(),status:r.querySelector('[data-k=status]').value.trim()}));
+    music=[...document.querySelectorAll('#eMusic .listrow')].map(r=>({song:r.querySelector('[data-k=song]').value.trim(),artist:r.querySelector('[data-k=artist]').value.trim()}));
+  };
+  const drawLists=()=>{
+    $('#eProjects').innerHTML=projects.map((x,i)=>`<div class="listrow"><div>
+      <input type="text" data-k="title" maxlength="60" placeholder="Project name" value="${esc(x.title)}">
+      <input type="text" data-k="desc" maxlength="200" placeholder="One line about it" value="${esc(x.desc)}">
+      <div class="row" style="flex-wrap:nowrap"><input type="url" data-k="link" placeholder="Link (optional)" value="${esc(x.link)}"><input type="text" data-k="status" maxlength="20" placeholder="Status, e.g. Prototype" value="${esc(x.status)}"></div>
+      </div><button class="btn danger small" type="button" data-del-p="${i}" aria-label="Remove project">×</button></div>`).join('');
+    $('#eMusic').innerHTML=music.map((x,i)=>`<div class="listrow"><div style="flex-direction:row"><input type="text" data-k="song" maxlength="80" placeholder="Song" value="${esc(x.song)}"><input type="text" data-k="artist" maxlength="80" placeholder="Artist" value="${esc(x.artist)}"></div><button class="btn danger small" type="button" data-del-m="${i}" aria-label="Remove song">×</button></div>`).join('');
+    document.querySelectorAll('[data-del-p]').forEach(b=>b.onclick=()=>{readLists(); projects.splice(+b.dataset.delP,1); drawLists();});
+    document.querySelectorAll('[data-del-m]').forEach(b=>b.onclick=()=>{readLists(); music.splice(+b.dataset.delM,1); drawLists();});
+  };
+  drawLists();
+  $('#addProj').onclick=()=>{ readLists(); if(projects.length<12) projects.push({title:'',desc:'',link:'',status:''}); drawLists(); };
+  $('#addSong').onclick=()=>{ readLists(); if(music.length<15) music.push({song:'',artist:''}); drawLists(); };
+
+  $('#edit').onsubmit=async e=>{
+    e.preventDefault(); readLists();
+    const vid=$('#eVid').value.trim();
+    if(vid && !ytId(vid)){ $('#eErr').textContent='That doesn\'t look like a YouTube link.'; return; }
+    try{
+      myProfile = await api.saveProfile({
+        id:me.id, username:p.username,
+        display_name:$('#eName').value.trim(), bio:$('#eBio').value.trim(),
+        skills:[...document.querySelectorAll('#eSkills input:checked')].map(i=>i.value),
+        bg_video:vid, bg_zoom:Number($('#eZoom').value), accent:$('#eAccent').value,
+        socials:{instagram:$('#eIg').value.trim().replace(/^@/,''),tiktok:$('#eTt').value.trim().replace(/^@/,''),email:$('#eEm').value.trim()},
+        projects:projects.filter(x=>x.title), music:music.filter(x=>x.song||x.artist)
+      });
+      toast('Saved'); location.hash='#/u/'+p.username;
+    }catch(err){ $('#eErr').textContent=err.message; }
+  };
+}
+
+/* ================= MESSAGES ================= */
+async function viewInbox(){
+  if(needLogin()) return;
+  defaultBg(); await renderNav('messages');
+  const msgs = await api.myMessages(me.id), latest = new Map();
+  msgs.forEach(m=>{ const o=m.sender_id===me.id?m.recipient_id:m.sender_id; if(!latest.has(o)) latest.set(o,m); });
+  const others=[...latest.keys()].filter(o=>!blocked.includes(o));
+  const people=Object.fromEntries((await api.profilesByIds(others)).map(p=>[p.id,p]));
+  const seen=getSeen();
+  $('#view').innerHTML=`<div class="glass stack"><h3 style="font-size:24px">Messages</h3>
+    ${others.length ? others.map(o=>{ const m=latest.get(o), p=people[o]; const unread=m.recipient_id===me.id && (!seen[o]||m.created_at>seen[o]);
+      return `<a class="convo${unread?' unread':''}" href="#/messages/${esc(p?.username||'')}">${avatar(p)}<div style="flex:1;min-width:0"><div class="name">${esc(p?.display_name||'Unknown')}</div><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.sender_id===me.id?'You: ':''}${esc(m.body)}</div></div><span class="small muted">${ago(m.created_at)}</span>${unread?'<span class="dot"></span>':''}</a>`; }).join('')
+      : `<p class="muted">No messages yet. Find someone on the feed and say hi.</p>`}
+  </div>`;
+}
+async function viewThread(username){
+  if(needLogin()) return;
+  defaultBg(); await renderNav('messages');
+  const other = await api.profileByUsername(username);
+  if(!other){ $('#view').innerHTML=`<div class="glass"><p>No one with that username.</p></div>`; return; }
+  if(other.id===me.id){ location.hash='#/messages'; return; }
+  const isBlocked=blocked.includes(other.id);
+  $('#view').innerHTML=`<div class="glass stack">
+    <div class="row" style="justify-content:space-between">
+      <a class="who row" href="#/u/${esc(other.username)}" style="text-decoration:none">${avatar(other)}<div><div style="font-weight:600">${esc(other.display_name)}</div><div class="small muted">@${esc(other.username)}</div></div></a>
+      <div class="row"><button class="btn ghost small" id="tBlock">${isBlocked?'Unblock':'Block'}</button><button class="btn ghost small" id="tReport">Report</button></div>
+    </div>
+    <div class="thread" id="thread"></div>
+    ${isBlocked ? `<p class="muted small">You blocked this person.</p>` : `
+    <form class="row" id="tForm" style="flex-wrap:nowrap"><input type="text" id="tIn" maxlength="2000" placeholder="Message…" autocomplete="off"><button class="btn" type="submit">Send</button></form>`}
+  </div>`;
+  let lastKey='';
+  const load=async()=>{
+    const t=await api.thread(me.id,other.id);
+    const key=t.length+'|'+(t[t.length-1]?.id||''); if(key===lastKey) return; lastKey=key;
+    const box=$('#thread'); if(!box) return;
+    box.innerHTML = t.length ? t.map(m=>`<div class="bubble ${m.sender_id===me.id?'me':'them'}">${esc(m.body)}<span class="time">${ago(m.created_at)}</span></div>`).join('') : `<p class="muted small">Say hi to ${esc(other.display_name)}.</p>`;
+    box.scrollTop=box.scrollHeight; markSeen(other.id);
+  };
+  await load();
+  pollTimer=setInterval(load,4000);
+  $('#tBlock').onclick=()=> isBlocked
+    ? (async()=>{ await api.unblock(me.id,other.id); toast('Unblocked'); route(); })()
+    : confirmBox(`Block @${other.username}?`,'Block',async()=>{ await api.block(me.id,other.id); toast('Blocked'); location.hash='#/messages'; });
+  $('#tReport').onclick=()=>reportBox('profile',other.id);
+  const f=$('#tForm');
+  if(f){ f.onsubmit=async e=>{ e.preventDefault(); const v=$('#tIn').value.trim(); if(!v) return; try{ await api.send(me.id,other.id,v); $('#tIn').value=''; await load(); }catch(err){ toast(err.message); } }; $('#tIn').focus(); }
+}
+
+route();
+</script>
+</body>
+</html>

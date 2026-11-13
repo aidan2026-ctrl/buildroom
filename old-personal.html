@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>[YOUR NAME]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     PASTE YOUR YOUTUBE LINK in the script at the bottom (VIDEO_URL)
+     ============================================================ */
+  *{box-sizing:border-box}
+  html{background:#0b0b0c}
+  body{margin:0;min-height:100%;background:transparent;color:#fff;font-family:Inter,system-ui,sans-serif}
+  a{color:#fff}
+
+  /* --- video background --- */
+  .bg{position:fixed;inset:0;overflow:hidden;z-index:0;background:#0b0b0c}
+  .bg iframe{
+    position:absolute;top:50%;left:50%;
+    width:100vw;height:56.25vw;          /* 16:9 */
+    min-height:100vh;min-width:177.78vh; /* always cover the screen */
+    transform:translate(-50%,-50%) scale(1.36); /* zooms past the video's built-in black bars */
+    border:0;pointer-events:none;
+    
+  }
+  .shade{display:none}
+
+  /* --- content --- */
+  main{text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 18px rgba(0,0,0,.35);position:relative;z-index:2;max-width:680px;margin:0 auto;padding:18vh 24px 64px;display:flex;flex-direction:column;gap:96px}
+  .eyebrow{margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.7)}
+  h1{margin:12px 0 16px;font-size:clamp(44px,8vw,72px);line-height:1;letter-spacing:-.03em;font-weight:600}
+  .bio{margin:0;font-size:19px;line-height:1.6;color:rgba(255,255,255,.85);max-width:520px}
+  .links{display:flex;flex-wrap:wrap;gap:22px;margin-top:28px;font-size:15px;font-weight:500}
+  .links a{text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:2px}
+  .links a:hover{border-color:#fff}
+
+  h2{margin:0 0 20px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.7)}
+  .cards{display:flex;flex-wrap:wrap;gap:14px}
+  .card{flex:1 1 280px;padding:22px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .card h3{margin:0 0 8px;font-size:20px;font-weight:600}
+  .card p{margin:0;font-size:15px;line-height:1.55;color:rgba(255,255,255,.8)}
+  .card .tag{float:right;font-size:12px;color:rgba(255,255,255,.6)}
+
+  ol{list-style:none;margin:0;padding:0}
+  ol li{display:flex;gap:20px;align-items:baseline;padding:15px 0;border-top:1px solid rgba(255,255,255,.18)}
+  ol li:last-child{border-bottom:1px solid rgba(255,255,255,.18)}
+  ol .n{width:20px;font-size:13px;color:rgba(255,255,255,.55)}
+  ol .t{flex:1;font-size:17px;font-weight:500}
+  ol .a{font-size:15px;color:rgba(255,255,255,.65)}
+
+  footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:14px;color:rgba(255,255,255,.6)}
+  footer a{color:rgba(255,255,255,.6)}
+
+  @media (prefers-reduced-motion:reduce){.bg iframe{display:none}}
+</style>
+</head>
+<body>
+
+<div class="bg" id="bg"></div>
+<div class="shade"></div>
+
+<main>
+  <header>
+    <p class="eyebrow">Hi, I'm</p>
+    <h1>[YOUR NAME]</h1>
+    <p class="bio">[A LINE OR TWO ABOUT YOU]</p>
+    <nav class="links" aria-label="Social links">
+      <a href="https://instagram.com/YOUR_HANDLE">Instagram</a>
+      <a href="https://tiktok.com/@YOUR_HANDLE">TikTok</a>
+      <a href="mailto:you@example.com">Email</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>Projects</h2>
+    <div class="cards">
+      <article class="card">
+        <span class="tag">Prototype</span>
+        <h3>Spinroom</h3>
+        <p>Random video chat, only for verified students on my campus.</p>
+      </article>
+      <article class="card">
+        <span class="tag">Prototype</span>
+        <h3>Threadmap</h3>
+        <p>Discover and collect fashion pieces like trading cards.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>On repeat</h2>
+    <ol>
+      <li><span class="n">01</span><span class="t">[SONG]</span><span class="a">[ARTIST]</span></li>
+      <li><span class="n">02</span><span class="t">[SONG]</span><span class="a">[ARTIST]</span></li>
+      <li><span class="n">03</span><span class="t">[SONG]</span><span class="a">[ARTIST]</span></li>
+      <li><span class="n">04</span><span class="t">[SONG]</span><span class="a">[ARTIST]</span></li>
+      <li><span class="n">05</span><span class="t">[SONG]</span><span class="a">[ARTIST]</span></li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>[YOUR NAME]</span>
+    <a href="mailto:you@example.com">you@example.com</a>
+  </footer>
+</main>
+
+<script>
+  // ↓↓↓ PASTE YOUR YOUTUBE LINK HERE ↓↓↓
+  const VIDEO_URL = "https://youtu.be/UQ364HwIHlc";
+
+  // Optional: start the video at this many seconds in
+  const START_AT = 0;
+
+  (function(){
+    const m = VIDEO_URL.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
+    const id = m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(VIDEO_URL) ? VIDEO_URL : null);
+    if(!id) return; // no link yet -> plain dark background
+    const params = new URLSearchParams({
+      autoplay:1, mute:1, loop:1, playlist:id, controls:0, playsinline:1,
+      rel:0, modestbranding:1, disablekb:1, iv_load_policy:3, fs:0, start:START_AT
+    });
+    const f = document.createElement('iframe');
+    f.src = 'https://www.youtube.com/embed/' + id + '?' + params;
+    f.title = 'Background video';
+    f.setAttribute('aria-hidden','true');
+    f.tabIndex = -1;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture';
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    document.getElementById('bg').appendChild(f);
+  })();
+</script>
+</body>
+</html>
